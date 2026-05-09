@@ -1,0 +1,164 @@
+﻿#include <GL/glut.h>
+
+float angleCube = 1;
+float scaleCube = 1.0f;
+float possitionX = 0.0f;
+float speedX = 0.025f;
+
+void control(unsigned char key, int x, int y) {
+	switch (key) {
+	case '+': scaleCube += 0.1; break;
+	case '-': if (scaleCube > 0.2) scaleCube -= 0.1; break;
+	case 27: exit(0); break;
+	}
+}
+
+void drawText(const char* text, float x, float y) {
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(0, 800, 0, 600);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glColor3f(1.0, 1.0, 1.0);
+	glRasterPos2i(x, y);
+	for (int i = 0; text[i] != '\0'; i++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text[i]);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void display() {
+	glClearColor(0.05f, 0.05f, 0.15f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+
+	glLoadIdentity();
+
+	// 1. الحركة المشتركة للشكلين معاً (الارتداد على محور X)
+	// تم إبعاد الكاميرا إلى -12.0 لكي تتسع الشاشة للشكلين معاً
+	glTranslatef(possitionX, 0.0, -12.0f);
+
+	angleCube += 1.0;
+
+	// ==========================================
+	// رسم المكعب (على اليسار)
+	// ==========================================
+	glPushMatrix(); // حفظ موضع الكاميرا المشترك
+	glTranslatef(-2.0f, 0.0f, 0.0f); // إزاحة المكعب لليسار بمقدار وحدتين
+	glRotatef(angleCube, 1.0, 1.0, 1.0); // الدوران الخاص بالمكعب
+	glScalef(scaleCube, scaleCube, scaleCube); // التحجيم الخاص بالمكعب
+
+	glBegin(GL_QUADS);
+	// الوجه اللي فوق
+	glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+	glColor3f(0.0f, 1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+	glColor3f(0.0f, 0.5f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+	glColor3f(0.0f, 1.0f, 0.5f); glVertex3f(1.0f, 1.0f, 1.0f);
+	// الوجه اللي تحت
+	glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	glColor3f(1.0f, 0.5f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+	glColor3f(1.0f, 1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glColor3f(1.0f, 0.2f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	// الوجه اللي قدام
+	glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(-1.0f, 1.0f, 1.0f); glVertex3f(-1.0f, -1.0f, 1.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	// الوجه اللي ورا
+	glColor3f(1.0f, 1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f); glVertex3f(-1.0f, 1.0f, -1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+	// الوجه اللي يمين
+	glColor3f(1.0f, 0.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+	glVertex3f(1.0f, 1.0f, 1.0f); glVertex3f(1.0f, -1.0f, 1.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	// الوجه اللي شمال
+	glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f); glVertex3f(-1.0f, -1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+	glEnd();
+	glPopMatrix(); // العودة للموضع المشترك
+
+	// ==========================================
+	// رسم الهرم (على اليمين)
+	// ==========================================
+	glPushMatrix(); // حفظ الموضع المشترك مرة أخرى
+	glTranslatef(2.0f, 0.0f, 0.0f); // إزاحة الهرم لليمين بمقدار وحدتين
+	glRotatef(angleCube, 1.0, 1.0, 1.0); // الدوران الخاص بالهرم
+	glScalef(scaleCube, scaleCube, scaleCube); // التحجيم الخاص بالهرم
+
+	glBegin(GL_TRIANGLES);
+	// Front
+	glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(0.0f, 1.0f, 0.0f);
+	glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+	glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	// Right
+	glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(0.0f, 1.0f, 0.0f);
+	glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	// Back
+	glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(0.0f, 1.0f, 0.0f);
+	glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	// Left
+	glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(0.0f, 1.0f, 0.0f);
+	glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+	glEnd();
+	// رسم قاعدة الهرم (بألوان غامقة كأنها في الظل)
+	glBegin(GL_QUADS);
+	glColor3f(0.1f, 0.1f, 0.1f); // رمادي فحمي غامق
+	glVertex3f(-1.0f, -1.0f, 1.0f);
+
+	glColor3f(0.0f, 0.0f, 0.0f); // أسود تماماً
+	glVertex3f(1.0f, -1.0f, 1.0f);
+
+	glColor3f(0.1f, 0.0f, 0.1f); // بنفسجي غامق جداً (يعطي عمق)
+	glVertex3f(1.0f, -1.0f, -1.0f);
+
+	glColor3f(0.0f, 0.0f, 0.0f); // أسود تماماً
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glEnd();
+	glPopMatrix(); // العودة للموضع المشترك
+
+	// النصوص الإرشادية
+	glDisable(GL_DEPTH_TEST);
+	drawText("Controls:", 20, 550);
+	drawText("'+' : Increase size", 20, 520);
+	drawText("'-' : Decrease size", 20, 490);
+	drawText("'ESC' : Exit", 20, 460);
+	glEnable(GL_DEPTH_TEST);
+
+	glutSwapBuffers();
+}
+
+void time(int) {
+	// حركة الارتداد يميناً ويساراً
+	possitionX += speedX;
+	if (possitionX > 4.0f || possitionX < -4.0f) {
+		speedX = -speedX;
+	}
+
+	glutPostRedisplay();
+	glutTimerFunc(15, time, 0);
+}
+
+void reshape(GLsizei width, GLsizei height) {
+	if (height == 0) height = 1;
+	glViewport(0, 0, width, height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void main(int argc, char** argv) {
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitWindowSize(800, 600);
+	glutCreateWindow("Cube and Pyramid Bouncing (X-Axis)");
+	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
+	glutTimerFunc(0, time, 0);
+	glutKeyboardFunc(control);
+	glutMainLoop();
+}
